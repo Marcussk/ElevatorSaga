@@ -19,6 +19,7 @@
                 ready_elevators.splice(elevator_index, 1);
             }
             else {
+                if(!missed_calls.includes(floorNum));
                 missed_calls.push(floorNum);
             }
         }
@@ -40,9 +41,16 @@
 
                     // Whenever the elevator is idle (has no more queued destinations) ...
                     elevator.on("idle", function() {
-                        elevator.goToFloor(0);
-                        this.status = "idle";
-                        ready_elevators.push(elevator.id);
+                        if (missed_calls.length) {
+                            this.status = "moving";
+                            this.goToFloor(missed_calls[0]);
+                            missed_calls.splice(0, 1);
+                        }
+                        else {
+                            elevator.goToFloor(0);
+                            this.status = "idle";
+                            ready_elevators.push(elevator.id);
+                        }
                     }); 
                 }
             )(elevators[i]);
